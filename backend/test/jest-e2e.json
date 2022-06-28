@@ -1,9 +1,19 @@
 {
-  "moduleFileExtensions": ["js", "json", "ts"],
+  "moduleFileExtensions": [
+    "js",
+    "json",
+    "ts"
+  ],
   "rootDir": ".",
   "testEnvironment": "node",
   "testRegex": ".e2e-spec.ts$",
   "transform": {
     "^.+\\.(t|j)s$": "ts-jest"
+  },
+  "moduleNameMapper": {
+    "@app/github_rest_api/(.*)": "<rootDir>/../libs/github_rest_api/src/$1",
+    "@app/github_rest_api": "<rootDir>/../libs/github_rest_api/src",
+    "@app/external-api-request/(.*)": "<rootDir>/../libs/external-api-request/src/$1",
+    "@app/external-api-request": "<rootDir>/../libs/external-api-request/src"
   }
 }

@@ -16,6 +16,20 @@
     "noImplicitAny": false,
     "strictBindCallApply": false,
     "forceConsistentCasingInFileNames": false,
-    "noFallthroughCasesInSwitch": false
+    "noFallthroughCasesInSwitch": false,
+    "paths": {
+      "@app/github_rest_api": [
+        "libs/github_rest_api/src"
+      ],
+      "@app/github_rest_api/*": [
+        "libs/github_rest_api/src/*"
+      ],
+      "@app/external-api-request": [
+        "libs/external-api-request/src"
+      ],
+      "@app/external-api-request/*": [
+        "libs/external-api-request/src/*"
+      ]
+    }
   }
 }
