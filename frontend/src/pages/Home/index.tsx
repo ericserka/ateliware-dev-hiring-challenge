@@ -1,3 +1,12 @@
+import { Box } from "@chakra-ui/react"
+import { Navbar } from "../../components/layout/Navbar"
+import { TabsPanel } from "../../components/layout/Tabs"
+
 export const Home = () => {
-  return <h1>Hello World</h1>
+  return (
+    <Box>
+      <Navbar />
+      <TabsPanel />
+    </Box>
+  )
 }

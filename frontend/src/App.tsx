@@ -1,5 +1,10 @@
 import { Rotas } from "./routes"
+import { UserProvider } from "./store/UserProvider"
 
 export const App = () => {
-  return <Rotas />
+  return (
+    <UserProvider>
+      <Rotas />
+    </UserProvider>
+  )
 }
