@@ -67,6 +67,7 @@ export class AppService {
           userId: insertLikedRepositoryDTO.userId,
         },
       });
+      return { message: 'success' };
     } catch (e) {
       console.log(e);
       throw new HttpException(
@@ -81,6 +82,7 @@ export class AppService {
       await this.prisma.repositoriesOnUsers.delete({
         where: { userId_repositoryId: { userId, repositoryId } },
       });
+      return { message: 'success' };
     } catch (e) {
       console.log(e);
       throw new HttpException(
