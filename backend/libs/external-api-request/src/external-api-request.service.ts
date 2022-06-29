@@ -51,10 +51,6 @@ export class ExternalApiRequestService {
           ),
         ).pipe(map((res) => res.data)),
       );
-
-      logger.debug(
-        `< ${method.toUpperCase()} ${endpoint} res[${JSON.stringify(res)}]`,
-      );
     } catch (httpServiceError) {
       res = new HttpException(
         {

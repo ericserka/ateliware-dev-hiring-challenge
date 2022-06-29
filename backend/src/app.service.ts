@@ -1,72 +1,92 @@
-import { Injectable } from '@nestjs/common';
-import { Prisma, Repository, User } from '@prisma/client';
+import { GithubRestApiService } from '@app/github_rest_api';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { InsertUserLikedRepositoryDTO } from './dto';
 import { PrismaService } from './prisma.service';
 
 @Injectable()
 export class AppService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private githubRestApiService: GithubRestApiService,
+  ) {}
 
-  async user(
-    userWhereUniqueInput: Prisma.UserWhereUniqueInput,
-  ): Promise<User | null> {
-    return this.prisma.user.findUnique({
-      where: userWhereUniqueInput,
-    });
+  async getLanguageRepositories(language: string, userId: string) {
+    try {
+      const searchedRepositories =
+        await this.githubRestApiService.searchRepositories(language);
+
+      await this.prisma.repository.createMany({
+        data: searchedRepositories.items.map((r) => ({
+          id: String(r.id),
+          dataObj: r,
+        })),
+        skipDuplicates: true,
+      });
+      await this.prisma.user.upsert({
+        where: {
+          id: userId,
+        },
+        update: {},
+        create: { id: userId },
+      });
+      return searchedRepositories;
+    } catch (e) {
+      console.log(e);
+      throw new HttpException(
+        'Algo deu errado ao tentar consultar os repositórios. Tente novamente mais tarde.',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
   }
 
-  async users(params: {
-    skip?: number;
-    take?: number;
-    cursor?: Prisma.UserWhereUniqueInput;
-    where?: Prisma.UserWhereInput;
-    orderBy?: Prisma.UserOrderByWithRelationInput;
-  }): Promise<User[]> {
-    const { skip, take, cursor, where, orderBy } = params;
-    return this.prisma.user.findMany({
-      skip,
-      take,
-      cursor,
-      where,
-      orderBy,
-    });
+  async getUserLikedRepositories(userId: string) {
+    try {
+      return await this.prisma.repositoriesOnUsers.findMany({
+        where: {
+          userId,
+        },
+        include: {
+          repository: true,
+        },
+      });
+    } catch (e) {
+      throw new HttpException(
+        'Algo deu errado ao tentar consultar os repositórios favoritos deste usuário. Tente novamente mais tarde.',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
   }
 
-  async createUser(data: Prisma.UserCreateInput): Promise<User> {
-    return this.prisma.user.create({
-      data,
-    });
+  async insertUserLikedRepository(
+    insertLikedRepositoryDTO: InsertUserLikedRepositoryDTO,
+  ) {
+    try {
+      await this.prisma.repositoriesOnUsers.create({
+        data: {
+          repositoryId: insertLikedRepositoryDTO.repositoryId,
+          userId: insertLikedRepositoryDTO.userId,
+        },
+      });
+    } catch (e) {
+      console.log(e);
+      throw new HttpException(
+        'Algo deu errado ao tentar consultar os repositórios. Tente novamente mais tarde.',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
   }
 
-  async repository(
-    repositoryWhereUniqueInput: Prisma.RepositoryWhereUniqueInput,
-  ): Promise<Repository | null> {
-    return this.prisma.repository.findUnique({
-      where: repositoryWhereUniqueInput,
-    });
-  }
-
-  async repositories(params: {
-    skip?: number;
-    take?: number;
-    cursor?: Prisma.RepositoryWhereUniqueInput;
-    where?: Prisma.RepositoryWhereInput;
-    orderBy?: Prisma.RepositoryOrderByWithRelationInput;
-  }): Promise<Repository[]> {
-    const { skip, take, cursor, where, orderBy } = params;
-    return this.prisma.repository.findMany({
-      skip,
-      take,
-      cursor,
-      where,
-      orderBy,
-    });
-  }
-
-  async createRepository(
-    data: Prisma.RepositoryCreateInput,
-  ): Promise<Repository> {
-    return this.prisma.repository.create({
-      data,
-    });
+  async deleteUserLikedRepository(userId: string, repositoryId: string) {
+    try {
+      await this.prisma.repositoriesOnUsers.delete({
+        where: { userId_repositoryId: { userId, repositoryId } },
+      });
+    } catch (e) {
+      console.log(e);
+      throw new HttpException(
+        'Algo deu errado ao tentar remover o favorito. Tente novamente mais tarde.',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
   }
 }

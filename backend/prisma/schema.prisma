@@ -13,14 +13,14 @@ model User {
 }
 
 model Repository {
-  id      BigInt                @id
+  id      String                @id
   dataObj Json
   users   RepositoriesOnUsers[]
 }
 
 model RepositoriesOnUsers {
   repository   Repository @relation(fields: [repositoryId], references: [id])
-  repositoryId BigInt
+  repositoryId String
   user         User       @relation(fields: [userId], references: [id])
   userId       String
 

@@ -1,6 +1,7 @@
 import { Button, Flex, Link, Text } from "@chakra-ui/react"
 import { toArray } from "react-emoji-render"
 import { FaStar, FaThumbsDown, FaThumbsUp } from "react-icons/fa"
+import { useUser } from "../../store/UserProvider"
 import { Repository } from "./Repository"
 
 type RepositoryCardProps = {
@@ -21,13 +22,8 @@ const parseEmojis = (value: string) =>
     : ""
 
 export const RepositoryCard = ({ repository }: RepositoryCardProps) => {
-  const userFavorites: number[] = []
-
-  const userLikedThis = userFavorites.includes(repository.id)
-
-  const toggleLike = async (repositoryId: number) => {
-    // post se ainda nao foi favoritado ou delete se ja esta favoritado
-  }
+  const { alreadyLiked, toggleLike } = useUser()
+  const userLikedThis = alreadyLiked(repository)
 
   return (
     <Flex
@@ -75,7 +71,7 @@ export const RepositoryCard = ({ repository }: RepositoryCardProps) => {
           }
           colorScheme={userLikedThis ? "red" : "blue"}
           variant='solid'
-          onClick={() => toggleLike(repository.id)}
+          onClick={() => toggleLike(repository)}
         >
           {userLikedThis ? "Dislike" : "Like"}
         </Button>

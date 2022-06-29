@@ -10,13 +10,14 @@ import {
   Show,
   Text,
 } from "@chakra-ui/react"
-import { FaBars, FaHeart, FaSignOutAlt } from "react-icons/fa"
-import { useNavigate } from "react-router-dom"
+import { FaBars, FaGithub, FaHeart, FaSignOutAlt } from "react-icons/fa"
+import { useLocation, useNavigate } from "react-router-dom"
 import { useUser } from "../../../store/UserProvider"
 
 export const Navbar = () => {
   const { logout } = useUser()
   const navigate = useNavigate()
+  const location = useLocation()
 
   return (
     <Flex h='64px' p='6' align='center' justify='space-between' direction='row'>
@@ -39,12 +40,23 @@ export const Navbar = () => {
           <MenuList>
             <MenuItem
               color='blue.500'
-              icon={<FaHeart />}
-              onClick={() => navigate("/likeds")}
+              icon={location.pathname === "/" ? <FaHeart /> : <FaGithub />}
+              onClick={() =>
+                navigate(location.pathname === "/" ? "/likeds" : "/")
+              }
             >
-              Likeds
+              {location.pathname === "/" ? "Likeds" : "Repositories"}
             </MenuItem>
-            <MenuItem color='red.500' icon={<FaSignOutAlt />} onClick={logout}>
+            <MenuItem
+              color='red.500'
+              icon={<FaSignOutAlt />}
+              onClick={() => {
+                if (location.pathname !== "/") {
+                  navigate("/")
+                }
+                logout()
+              }}
+            >
               Logout
             </MenuItem>
           </MenuList>
@@ -58,15 +70,22 @@ export const Navbar = () => {
           gap={[3, 12]}
         >
           <Button
-            onClick={() => navigate("/likeds")}
-            leftIcon={<FaHeart />}
+            leftIcon={location.pathname === "/" ? <FaHeart /> : <FaGithub />}
+            onClick={() =>
+              navigate(location.pathname === "/" ? "/likeds" : "/")
+            }
             colorScheme='blue'
             variant='outline'
           >
-            Likeds
+            {location.pathname === "/" ? "Likeds" : "Repositories"}
           </Button>
           <Button
-            onClick={logout}
+            onClick={() => {
+              if (location.pathname !== "/") {
+                navigate("/")
+              }
+              logout()
+            }}
             leftIcon={<FaSignOutAlt />}
             colorScheme='red'
             variant='solid'

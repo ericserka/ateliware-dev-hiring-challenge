@@ -1,42 +1,41 @@
-import { Body, Controller, Get, Param, Post } from '@nestjs/common';
-import {
-  Repository as RepositoryModel,
-  User as UserModel,
-} from '@prisma/client';
+import { Body, Controller, Delete, Get, Param, Post } from '@nestjs/common';
 import { AppService } from './app.service';
+import { InsertUserLikedRepositoryDTO } from './dto';
 
-// TODO: implementar DTOs nos controllers
 @Controller()
 export class AppController {
   constructor(private readonly appService: AppService) {}
 
-  @Get('repository/:id')
-  async getRepositoryById(@Param('id') id: string): Promise<RepositoryModel> {
-    return this.appService.repository({ id: Number(id) });
-  }
-
-  @Get('repositories')
-  async getRepositories(
+  @Get('repositories/:language/:userId')
+  async getLanguageRepositories(
+    @Param('language') language: string,
     @Param('userId') userId: string,
-  ): Promise<RepositoryModel[]> {
-    return this.appService.repositories({
-      where: { userId },
-    });
+  ) {
+    return await this.appService.getLanguageRepositories(language, userId);
   }
 
-  @Post('repository')
-  async createRepository(
-    @Body() repositoryData: { dataObj: object; userId: string },
-  ): Promise<RepositoryModel> {
-    const { dataObj, userId } = repositoryData;
-    return this.appService.createRepository({
-      dataObj,
-      User: { connect: { id: userId } },
-    });
+  @Get('liked-repositories/:userId')
+  async getUserLikedRepositories(@Param('userId') userId: string) {
+    return await this.appService.getUserLikedRepositories(userId);
   }
 
-  @Post('user')
-  async createUser(@Body() userData: { id: string }): Promise<UserModel> {
-    return this.appService.createUser(userData);
+  @Post('liked-repository')
+  async insertUserLikedRepository(
+    @Body() insertLikedRepositoryDTO: InsertUserLikedRepositoryDTO,
+  ) {
+    return await this.appService.insertUserLikedRepository(
+      insertLikedRepositoryDTO,
+    );
+  }
+
+  @Delete('liked-repository/:userId/:repositoryId')
+  async deleteUserLikedRepository(
+    @Param('userId') userId: string,
+    @Param('repositoryId') repositoryId: string,
+  ) {
+    return await this.appService.deleteUserLikedRepository(
+      userId,
+      repositoryId,
+    );
   }
 }
